@@ -4,6 +4,7 @@ import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
 import { CompanyModule } from './company/company.module';
 import { QuestionModule } from './question/question.module';
+import { AuthorizationModule } from './authorization/authorization.module';
 
 @Module({
   imports: [
@@ -11,7 +12,8 @@ import { QuestionModule } from './question/question.module';
     DatabaseModule, 
     UsersModule,
     CompanyModule,
-    QuestionModule
+    QuestionModule,
+    AuthorizationModule
   ],
   controllers: [],
   providers: [],
