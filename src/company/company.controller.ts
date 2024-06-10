@@ -11,6 +11,7 @@ export class CompanyController {
 
   @Post()
   @UsePipes(ValidationPipe)
+  @UseGuards(AuthorizationGuard)
   async create(@Body() createCompanyDto: CreateCompanyDto): Promise<{ success: boolean, data?: Company, error?: string }> {
     try {
       const company = await this.companyService.create(createCompanyDto);

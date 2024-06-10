@@ -23,7 +23,7 @@ export class AuthorizationGuard implements CanActivate {
         cache: true,
         rateLimit: true,
         jwksRequestsPerMinute: 5,
-        jwksUri: '${this.AUTH0_DOMAIN}.well-known/jwks.json'
+        jwksUri: `${this.AUTH0_DOMAIN}.well-known/jwks.json`
       }),
       audience: this.AUTH0_AUDIENCE,
       issuer: this.AUTH0_DOMAIN,
@@ -33,8 +33,10 @@ export class AuthorizationGuard implements CanActivate {
   );
     try{
      await checkJwt(req,res);
+     console.log('JWT successfully verified');
      return true
     } catch(error){
+      console.error('JWT verification failed:', error);
       throw new UnauthorizedException(error)
     }
   }
