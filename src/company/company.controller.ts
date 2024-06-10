@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UsePipes, ValidationPipe, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UsePipes, ValidationPipe, HttpException, HttpStatus, UseGuards } from '@nestjs/common';
 import { CompanyService } from './company.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
 import { Company } from './entities/company.entity';
+import { AuthorizationGuard } from 'src/authorization/authorization.guard';
 
 @Controller('company')
 export class CompanyController {
@@ -10,6 +11,7 @@ export class CompanyController {
 
   @Post()
   @UsePipes(ValidationPipe)
+  @UseGuards(AuthorizationGuard)
   async create(@Body() createCompanyDto: CreateCompanyDto): Promise<{ success: boolean, data?: Company, error?: string }> {
     try {
       const company = await this.companyService.create(createCompanyDto);
@@ -19,6 +21,7 @@ export class CompanyController {
     }
   }
 
+  @UseGuards(AuthorizationGuard)
   @Get()
   async findAll(): Promise<{ success: boolean, data?: Company[], error?: string }> {
     try {
@@ -28,7 +31,8 @@ export class CompanyController {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-
+  
+  @UseGuards(AuthorizationGuard)
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<{ success: boolean, data?: Company, error?: string }> {
     try {
