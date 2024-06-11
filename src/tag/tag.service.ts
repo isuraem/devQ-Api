@@ -15,7 +15,7 @@ export class TagService {
     private readonly tagRepository: Repository<Tag>,
     private readonly entityManager: EntityManager,
 
-  ) {}
+  ) { }
 
   async create(createTagDto: CreateTagDto): Promise<Tag> {
     const { name } = createTagDto;
@@ -85,7 +85,7 @@ export class TagService {
     return questions;
   }
 
-  async findAllQuestionsByTagsInCompany(companyId: number): Promise<{ [tag: string]: Question[] }> {
+  async findAllQuestionsByTagsInCompany(companyId: number): Promise<{ name: string, questions: Question[] }[]> {
     const company = await this.entityManager.findOne(Company, {
       where: { id: companyId },
       relations: ['users'],
@@ -99,11 +99,13 @@ export class TagService {
 
     const tags = await this.tagRepository.find({ relations: ['questions', 'questions.user'] });
 
-    const result = {};
+    const result = [];
     for (const tag of tags) {
-      result[tag.name] = tag.questions.filter(question => userIds.includes(question.user.id));
+      const filteredQuestions = tag.questions.filter(question => userIds.includes(question.user.id));
+      result.push({ name: tag.name, questions: filteredQuestions });
     }
 
     return result;
   }
+
 }
