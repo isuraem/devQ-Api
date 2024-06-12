@@ -1,4 +1,18 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UsePipes, ValidationPipe, HttpException, HttpStatus, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UsePipes,
+  ValidationPipe,
+  HttpException,
+  HttpStatus,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { CompanyService } from './company.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
@@ -12,9 +26,13 @@ export class CompanyController {
   @Post()
   @UsePipes(ValidationPipe)
   @UseGuards(AuthorizationGuard)
-  async create(@Body() createCompanyDto: CreateCompanyDto): Promise<{ success: boolean, data?: Company, error?: string }> {
+  async create(
+    @Body() createCompanyDto: CreateCompanyDto,
+    @Req() req,
+  ): Promise<{ success: boolean; data?: Company; error?: string }> {
+    const sub = req.user.sub
     try {
-      const company = await this.companyService.create(createCompanyDto);
+      const company = await this.companyService.create(createCompanyDto, sub);
       return { success: true, data: company };
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
@@ -23,7 +41,11 @@ export class CompanyController {
 
   @UseGuards(AuthorizationGuard)
   @Get()
-  async findAll(): Promise<{ success: boolean, data?: Company[], error?: string }> {
+  async findAll(): Promise<{
+    success: boolean;
+    data?: Company[];
+    error?: string;
+  }> {
     try {
       const companies = await this.companyService.findAll();
       return { success: true, data: companies };
@@ -31,10 +53,12 @@ export class CompanyController {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-  
+
   @UseGuards(AuthorizationGuard)
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<{ success: boolean, data?: Company, error?: string }> {
+  async findOne(
+    @Param('id') id: string,
+  ): Promise<{ success: boolean; data?: Company; error?: string }> {
     try {
       const company = await this.companyService.findOne(+id);
       if (!company) {
@@ -48,9 +72,15 @@ export class CompanyController {
 
   @Patch(':id')
   @UsePipes(ValidationPipe)
-  async update(@Param('id') id: string, @Body() updateCompanyDto: UpdateCompanyDto): Promise<{ success: boolean, data?: Company, error?: string }> {
+  async update(
+    @Param('id') id: string,
+    @Body() updateCompanyDto: UpdateCompanyDto,
+  ): Promise<{ success: boolean; data?: Company; error?: string }> {
     try {
-      const updatedCompany = await this.companyService.update(+id, updateCompanyDto);
+      const updatedCompany = await this.companyService.update(
+        +id,
+        updateCompanyDto,
+      );
       return { success: true, data: updatedCompany };
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
@@ -58,7 +88,9 @@ export class CompanyController {
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string): Promise<{ success: boolean, error?: string }> {
+  async remove(
+    @Param('id') id: string,
+  ): Promise<{ success: boolean; error?: string }> {
     try {
       await this.companyService.remove(+id);
       return { success: true };
