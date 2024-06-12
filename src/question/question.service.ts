@@ -54,7 +54,7 @@ export class QuestionService {
 
     const question = await this.questionRepository.findOne({
       where: { id },
-      relations: ['user']
+      relations: ['user', 'answers','answers.user']
     });
 
     if (!question) {
@@ -96,7 +96,7 @@ export class QuestionService {
           id: In(userIds),
         },
       },
-      relations: ['user', 'tags'],
+      relations: ['user', 'tags','answers'],
     });
   }
 

@@ -13,18 +13,18 @@ export class AnswerService {
     @InjectRepository(Answer)
     private readonly answerRepository: Repository<Answer>,
     private readonly entityManager: EntityManager,
-  ) {}
+  ) { }
 
   async create(createAnswerDto: CreateAnswerDto): Promise<Answer> {
     const question = await this.entityManager.findOne(Question, { where: { id: createAnswerDto.question_id } });
-  if (!question) {
-    throw new NotFoundException(`Question with ID ${createAnswerDto.question_id} not found`);
-  }
+    if (!question) {
+      throw new NotFoundException(`Question with ID ${createAnswerDto.question_id} not found`);
+    }
 
-  const user = await this.entityManager.findOne(User, { where: { id: createAnswerDto.user_id } });
-  if (!user) {
-    throw new NotFoundException(`User with ID ${createAnswerDto.user_id} not found`);
-  }
+    const user = await this.entityManager.findOne(User, { where: { id: createAnswerDto.user_id } });
+    if (!user) {
+      throw new NotFoundException(`User with ID ${createAnswerDto.user_id} not found`);
+    }
 
     const answer = this.answerRepository.create({
       ...createAnswerDto,
@@ -40,9 +40,9 @@ export class AnswerService {
   }
 
   async findOne(id: number): Promise<Answer> {
-    const answer = await this.answerRepository.findOne({ 
-      where: { id }, 
-      relations: ['question', 'user'] 
+    const answer = await this.answerRepository.findOne({
+      where: { id },
+      relations: ['question', 'user']
     });
     if (!answer) {
       throw new NotFoundException(`Answer with ID ${id} not found`);

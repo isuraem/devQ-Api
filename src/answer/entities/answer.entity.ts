@@ -23,8 +23,6 @@ export class Answer {
     })
     user: User;
 
-
-
     constructor(answer: Partial<Answer>){
         Object.assign(this, answer)
     }  
