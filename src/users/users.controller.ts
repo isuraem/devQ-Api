@@ -1,11 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UsePipes, ValidationPipe, HttpException, HttpStatus, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UsePipes, ValidationPipe, HttpException, HttpStatus, UseGuards, SetMetadata } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { FindUserByEmailDto } from './dto/find-user-by-email.dto';
 import { AuthorizationGuard } from 'src/authorization/authorization.guard';
-
+import { PermissionsGuard } from 'src/authorization/permissions/permissions.guard';
 @Controller('user')
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
@@ -64,8 +64,10 @@ export class UsersController {
     }
   }
 
+  
+  @UseGuards(AuthorizationGuard, PermissionsGuard)
+  @SetMetadata('permissions', ['manage:admin'])
   @Post('find-by-email')
-  @UseGuards(AuthorizationGuard)
   async findByEmail(@Body() findUserByEmailDto: FindUserByEmailDto): Promise<User> {
     return this.usersService.findByEmail(findUserByEmailDto.email);
   }
