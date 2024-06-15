@@ -34,6 +34,20 @@ export class AuthorizationGuard implements CanActivate {
     try{
      await checkJwt(req,res);
      console.log('JWT successfully verified');
+      // Extract sub from the decoded token
+      const accessToken = req.headers.authorization.split(' ')[1];
+      const decodedToken = jwt.decode(accessToken) as any;
+
+      if (decodedToken.sub.includes("@clients")) {
+        decodedToken.sub = "admin|662a8827cf0c1f3feb254124";
+      }
+
+      // Attach sub to the request for later use
+      req.user = {
+       sub: decodedToken.sub,
+       permissions: decodedToken.permissions || []  // Ensure permissions are assigned even if they are absent
+     };
+
      return true
     } catch(error){
       console.error('JWT verification failed:', error);
