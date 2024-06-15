@@ -8,7 +8,7 @@ export class PermissionsGuard implements CanActivate {
     context: ExecutionContext,
   ): boolean {
     const [req] = context.getArgs();
-    const userPermissions = req?.auth?.permissions || [];
+    const userPermissions = req?.user?.permissions || [];
     const requiredPermissions = this.reflector.get('permissions', context.getHandler()) || [];
     const hasAllRequiredPermissions = requiredPermissions.every(permission => userPermissions.includes(permission));
 

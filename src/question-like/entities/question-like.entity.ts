@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { Question } from 'src/question/entities/question.entity';
 
+@Entity()
 export class QuestionLike {
     @PrimaryGeneratedColumn()
     id: number;
@@ -11,4 +12,8 @@ export class QuestionLike {
   
     @ManyToOne(() => Question, (question) => question.likes)
     question: Question;
+
+    constructor(questionLike: Partial<QuestionLike>) {
+        Object.assign(this, questionLike)
+    }
 }

@@ -22,10 +22,10 @@ export class QuestionLikeService {
     if (!user || !question) {
       throw new NotFoundException('User or Question not found');
     }
-
-    const like = new QuestionLike();
-    like.user = user;
-    like.question = question;
+    const like = new QuestionLike({
+      user: user,
+      question: question
+    });
 
     return this.entityManager.save(like);
   }

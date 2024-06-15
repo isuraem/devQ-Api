@@ -16,7 +16,7 @@ export class CompanyController {
   @SetMetadata('permissions', ['manage:admin'])
   async create(@Body() createCompanyDto: CreateCompanyDto): Promise<{ success: boolean, data?: Company, error?: string }> {
     try {
-      const company = await this.companyService.create(createCompanyDto, sub);
+      const company = await this.companyService.create(createCompanyDto);
       return { success: true, data: company };
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
