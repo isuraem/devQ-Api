@@ -17,6 +17,9 @@ export class User {
 
     @Column()
     role: number;
+
+    @Column()
+    position: string;
     
     @ManyToOne(() => Company, (company) => company.users)
     @JoinColumn({

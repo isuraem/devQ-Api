@@ -96,7 +96,7 @@ export class QuestionService {
           id: In(userIds),
         },
       },
-      relations: ['user', 'tags','answers'],
+      relations: ['user', 'tags','answers','likes','likes.user'],
     });
   }
 

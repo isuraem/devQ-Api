@@ -1,6 +1,6 @@
 import { IsEmail, IsNotEmpty, MaxLength } from "class-validator";
 
-export class CreateUserDto {
+export class CreateNewUserDto {
 
     @IsNotEmpty()
     name: string;
@@ -15,5 +15,7 @@ export class CreateUserDto {
     position: string;
 
     company_id: number;
+
+    password: string;
     
 }
