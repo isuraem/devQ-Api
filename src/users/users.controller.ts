@@ -1,10 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UsePipes, ValidationPipe, HttpException, HttpStatus, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UsePipes, ValidationPipe, HttpException, HttpStatus, UseGuards, SetMetadata } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
+import { CreateNewUserDto } from './dto/create-new-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { FindUserByEmailDto } from './dto/find-user-by-email.dto';
 import { AuthorizationGuard } from 'src/authorization/authorization.guard';
+import { PermissionsGuard } from 'src/authorization/permissions/permissions.guard';
+import { Request } from 'express';
 
 @Controller('user')
 export class UsersController {
@@ -64,9 +67,33 @@ export class UsersController {
     }
   }
 
+  
+  @UseGuards(AuthorizationGuard, PermissionsGuard)
+  @SetMetadata('permissions', ['manage:recruiter'])
   @Post('find-by-email')
-  @UseGuards(AuthorizationGuard)
   async findByEmail(@Body() findUserByEmailDto: FindUserByEmailDto): Promise<User> {
     return this.usersService.findByEmail(findUserByEmailDto.email);
   }
+
+  @Post('new-user')
+  @UsePipes(ValidationPipe)
+  @UseGuards(AuthorizationGuard, PermissionsGuard)
+  @SetMetadata('permissions', ['manage:admin'])
+  async createNewUser(@Body() createNewUserDto: CreateNewUserDto): Promise<{ success: boolean, data?: User, error?: string }> {
+    try {
+      const user = await this.usersService.createNewUser(createNewUserDto);
+      return { success: true, data: user };
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  // @UseGuards(AuthorizationGuard, PermissionsGuard)
+  // @SetMetadata('permissions', ['manage:admin'])
+  // @Post('find-by-email')
+  // async findByEmail(@Body() findUserByEmailDto: FindUserByEmailDto, @Req() req: Request): Promise<User> {
+  //   const userId = req.user.sub;
+  //   console.log('Auth0 User ID:', userId); // You can log or use this user ID as needed
+  //   return this.usersService.findByEmail(findUserByEmailDto.email);
+  // }
 }

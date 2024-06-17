@@ -87,4 +87,16 @@ export class TagController {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
+  @Get('by-name/:tagName/company/:companyId')
+  async findQuestionsByTagNameAndCompany(@Param('tagName') tagName: string, @Param('companyId') companyId: string): Promise<{ success: boolean, data?: any, error?: string }> {
+    try {
+      const questions = await this.tagService.findQuestionsByTagNameAndCompany(tagName, +companyId);
+      return { success: true, data: questions };
+    } catch (error) {
+      console.error(`Error finding questions for tag with name ${tagName} and company with id ${companyId}:`, error);
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+  
 }

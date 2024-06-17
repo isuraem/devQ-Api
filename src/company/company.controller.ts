@@ -1,23 +1,10 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  UsePipes,
-  ValidationPipe,
-  HttpException,
-  HttpStatus,
-  UseGuards,
-  Req,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UsePipes, ValidationPipe, HttpException, HttpStatus, UseGuards, SetMetadata } from '@nestjs/common';
 import { CompanyService } from './company.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
 import { Company } from './entities/company.entity';
 import { AuthorizationGuard } from 'src/authorization/authorization.guard';
+import { PermissionsGuard } from 'src/authorization/permissions/permissions.guard';
 
 @Controller('company')
 export class CompanyController {
@@ -26,13 +13,9 @@ export class CompanyController {
   @Post()
   @UsePipes(ValidationPipe)
   @UseGuards(AuthorizationGuard)
-  async create(
-    @Body() createCompanyDto: CreateCompanyDto,
-    @Req() req,
-  ): Promise<{ success: boolean; data?: Company; error?: string }> {
-    const sub = req.user.sub
+  async create(@Body() createCompanyDto: CreateCompanyDto): Promise<{ success: boolean, data?: Company, error?: string }> {
     try {
-      const company = await this.companyService.create(createCompanyDto, sub);
+      const company = await this.companyService.create(createCompanyDto);
       return { success: true, data: company };
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);

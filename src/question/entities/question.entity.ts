@@ -2,6 +2,7 @@ import { Column, Entity, OneToMany, PrimaryGeneratedColumn, ManyToOne, JoinColum
 import { User } from "src/users/entities/user.entity";
 import { Answer } from "src/answer/entities/answer.entity";
 import { Tag } from "src/tag/entities/tag.entity";
+import { QuestionLike } from "src/question-like/entities/question-like.entity";
 @Entity()
 export class Question {
     @PrimaryGeneratedColumn()
@@ -30,6 +31,9 @@ export class Question {
 
     @OneToMany(() => Answer, (answer) => answer.question)
     answers: Answer[]
+
+    @OneToMany(() => QuestionLike, (like) => like.question)
+    likes: QuestionLike[];
 
     @ManyToMany(() => Tag, (tag) => tag.questions, {
         cascade: true
