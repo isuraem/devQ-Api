@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn, ManyToOne, JoinColumn, ManyToMany} from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn, ManyToOne, JoinColumn, CreateDateColumn, ManyToMany, JoinTable } from "typeorm";
 import { Question } from "src/question/entities/question.entity";
 import { User } from "src/users/entities/user.entity";
 
@@ -16,14 +16,14 @@ export class Answer {
     })
     question: Question;
 
-
+    @CreateDateColumn({ type: 'timestamp' })
+    createdAt: Date;
+    
     @ManyToOne(() => User, (user) => user.answers)
     @JoinColumn({
         name: 'user_id'
     })
     user: User;
-
-
 
     constructor(answer: Partial<Answer>){
         Object.assign(this, answer)

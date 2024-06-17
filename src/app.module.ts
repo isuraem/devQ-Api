@@ -7,6 +7,9 @@ import { QuestionModule } from './question/question.module';
 import { AuthorizationModule } from './authorization/authorization.module';
 import { AnswerModule } from './answer/answer.module';
 import { TagModule } from './tag/tag.module';
+import { PublicActivityModule } from './public-activity/public-activity.module';
+import { PrivateActivityModule } from './private-activity/private-activity.module';
+import { QuestionLikeModule } from './question-like/question-like.module';
 
 @Module({
   imports: [
@@ -17,7 +20,10 @@ import { TagModule } from './tag/tag.module';
     QuestionModule,
     AuthorizationModule,
     AnswerModule,
-    TagModule
+    TagModule,
+    PublicActivityModule,
+    PrivateActivityModule,
+    QuestionLikeModule
   ],
   controllers: [],
   providers: [],

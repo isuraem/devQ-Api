@@ -73,7 +73,7 @@ export class TagService {
   async findQuestionsByTagAndCompany(tagId: number, companyId: number): Promise<Question[]> {
     const tag = await this.tagRepository.findOne({
       where: { id: tagId },
-      relations: ['questions', 'questions.user', 'questions.user.company'],
+      relations: ['questions', 'questions.user', 'questions.user.company','questions.likes','questions.likes.user'],
     });
 
     if (!tag) {
@@ -106,6 +106,21 @@ export class TagService {
     }
 
     return result;
+  }
+
+  async findQuestionsByTagNameAndCompany(tagName: string, companyId: number): Promise<Question[]> {
+    const tag = await this.tagRepository.findOne({
+      where: { name: tagName },
+      relations: ['questions', 'questions.user', 'questions.user.company','questions.likes','questions.likes.user','questions.answers','questions.tags'],
+    });
+
+    if (!tag) {
+      throw new NotFoundException(`Tag with name ${tagName} not found`);
+    }
+
+    const questions = tag.questions.filter(question => question.user.company.id === companyId);
+
+    return questions;
   }
 
 }
