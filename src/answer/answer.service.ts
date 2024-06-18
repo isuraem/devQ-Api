@@ -6,6 +6,7 @@ import { Repository, EntityManager } from 'typeorm';
 import { Answer } from './entities/answer.entity';
 import { Question } from 'src/question/entities/question.entity';
 import { User } from 'src/users/entities/user.entity';
+import { PrivateActivity } from 'src/private-activity/entities/private-activity.entity';
 
 @Injectable()
 export class AnswerService {
@@ -16,7 +17,7 @@ export class AnswerService {
   ) { }
 
   async create(createAnswerDto: CreateAnswerDto): Promise<Answer> {
-    const question = await this.entityManager.findOne(Question, { where: { id: createAnswerDto.question_id } });
+    const question = await this.entityManager.findOne(Question, { where: { id: createAnswerDto.question_id }, relations: ['user'] });
     if (!question) {
       throw new NotFoundException(`Question with ID ${createAnswerDto.question_id} not found`);
     }
@@ -32,7 +33,19 @@ export class AnswerService {
       user,
     });
 
-    return this.answerRepository.save(answer);
+    const savedAnswer = await this.answerRepository.save(answer);
+
+    const privateActivity = this.entityManager.create(PrivateActivity, {
+      user: question.user,
+      activityType: '0',
+      performedBy: user,
+      question,
+      answer: savedAnswer,
+    });
+
+    await this.entityManager.save(PrivateActivity, privateActivity);
+
+    return savedAnswer;
   }
 
   async findAll(): Promise<Answer[]> {

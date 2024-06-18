@@ -7,6 +7,7 @@ import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Company } from 'src/company/entities/company.entity';
 import { ConfigService } from '@nestjs/config';
+import { PublicActivity } from 'src/public-activity/entities/public-activity.entity';
 const Mailjet = require('node-mailjet');
 @Injectable()
 export class UsersService {
@@ -226,7 +227,18 @@ export class UsersService {
         console.log(err.statusCode);
       });
 
-    return this.userRepository.save(user);
+      const savedUser = await this.userRepository.save(user);
+
+      const publicActivity = this.entityManager.create(PublicActivity, {
+        company,
+        notificationText: `New user added: ${user.name}`,
+        user: savedUser,
+        activityType: '1', 
+      });
+  
+      await this.entityManager.save(publicActivity);
+  
+      return savedUser;
 
   }
 

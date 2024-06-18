@@ -1,26 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import { CreatePublicActivityDto } from './dto/create-public-activity.dto';
 import { UpdatePublicActivityDto } from './dto/update-public-activity.dto';
+import { PublicActivity } from './entities/public-activity.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class PublicActivityService {
-  create(createPublicActivityDto: CreatePublicActivityDto) {
-    return 'This action adds a new publicActivity';
-  }
+  constructor(
+    @InjectRepository(PublicActivity)
+    private readonly publicActivityRepository: Repository<PublicActivity>
+  ) {}
 
-  findAll() {
-    return `This action returns all publicActivity`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} publicActivity`;
-  }
-
-  update(id: number, updatePublicActivityDto: UpdatePublicActivityDto) {
-    return `This action updates a #${id} publicActivity`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} publicActivity`;
+  async findByCompanyId(companyId: number): Promise<PublicActivity[]> {
+    return this.publicActivityRepository.find({
+      where: { company: { id: companyId } },
+      relations: ['user', 'question', 'company'],
+    });
   }
 }

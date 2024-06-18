@@ -3,6 +3,8 @@ import { User } from "src/users/entities/user.entity";
 import { Answer } from "src/answer/entities/answer.entity";
 import { Tag } from "src/tag/entities/tag.entity";
 import { QuestionLike } from "src/question-like/entities/question-like.entity";
+import { PublicActivity } from "src/public-activity/entities/public-activity.entity";
+import { PrivateActivity } from "src/private-activity/entities/private-activity.entity";
 @Entity()
 export class Question {
     @PrimaryGeneratedColumn()
@@ -35,6 +37,12 @@ export class Question {
     @OneToMany(() => QuestionLike, (like) => like.question)
     likes: QuestionLike[];
 
+    @OneToMany(() => PublicActivity, publicActivity => publicActivity.question)
+    publicActivities: PublicActivity[];
+
+    @OneToMany(() => PrivateActivity, privateActivity => privateActivity.question)
+    privateActivities: PrivateActivity[];
+    
     @ManyToMany(() => Tag, (tag) => tag.questions, {
         cascade: true
     })

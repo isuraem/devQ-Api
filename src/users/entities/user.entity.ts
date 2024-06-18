@@ -4,6 +4,8 @@ import { Answer } from "src/answer/entities/answer.entity";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, OneToMany } from "typeorm";
 import { IsString, IsEmail, MinLength, MaxLength, IsNotEmpty } from 'class-validator';
 import { QuestionLike } from "src/question-like/entities/question-like.entity";
+import { PublicActivity } from "src/public-activity/entities/public-activity.entity";
+import { PrivateActivity } from "src/private-activity/entities/private-activity.entity";
 @Entity()
 export class User {
     @PrimaryGeneratedColumn()
@@ -36,6 +38,15 @@ export class User {
     @OneToMany(() => QuestionLike, (like) => like.user)
     likes: QuestionLike[];
 
+    @OneToMany(() => PublicActivity, publicActivity => publicActivity.user)
+    publicActivities: PublicActivity[];
+
+    @OneToMany(() => PrivateActivity, privateActivity => privateActivity.user)
+    privateActivities: PrivateActivity[];
+  
+    @OneToMany(() => PrivateActivity, privateActivity => privateActivity.performedBy)
+    performedActivities: PrivateActivity[];
+    
     constructor(user: Partial<User>){
         Object.assign(this, user)
     }  
