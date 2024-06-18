@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, HttpException, HttpStatus } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { CreateNewUserDto } from './dto/create-new-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -7,6 +7,8 @@ import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Company } from 'src/company/entities/company.entity';
 import { ConfigService } from '@nestjs/config';
+import { PublicActivity } from 'src/public-activity/entities/public-activity.entity';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 const Mailjet = require('node-mailjet');
 @Injectable()
 export class UsersService {
@@ -30,7 +32,10 @@ export class UsersService {
       throw new NotFoundException(`Company with ID ${createUserDto.company_id} not found`);
     }
 
-    const existingUser = await this.userRepository.findOneBy({ email: createUserDto.email });
+    const existingUser = await this.userRepository.findOne({
+      where: { email: createUserDto.email, activeStatus: true }
+    });
+
     if (existingUser) {
       throw new ConflictException('User with this email already exists');
     }
@@ -69,6 +74,8 @@ export class UsersService {
 
     const user = await this.findOne(id);
     user.role = updateUserDto.role;
+    user.position = updateUserDto.position;
+    
     return this.userRepository.save(user);
 
   }
@@ -84,7 +91,7 @@ export class UsersService {
 
   async findByEmail(email: string): Promise<User> {
     const user = await this.userRepository.findOne({
-      where: { email },
+      where: { email, activeStatus: true },
       relations: ['company'],
     });
 
@@ -226,9 +233,37 @@ export class UsersService {
         console.log(err.statusCode);
       });
 
-    return this.userRepository.save(user);
+      const savedUser = await this.userRepository.save(user);
+
+      const publicActivity = this.entityManager.create(PublicActivity, {
+        company,
+        notificationText: `New user added: ${user.name}`,
+        user: savedUser,
+        activityType: '1', 
+      });
+  
+      await this.entityManager.save(publicActivity);
+  
+      return savedUser;
 
   }
+
+  async updateUserProfile(userId: number, updateProfileDto: UpdateProfileDto): Promise<User> {
+    const user = await this.userRepository.findOne({where: { id: userId }});
+    if (!user) {
+        throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    console.log("data", updateProfileDto.name, updateProfileDto.image_url )
+    if (updateProfileDto.name) {
+        user.name = updateProfileDto.name;
+    }
+    if (updateProfileDto.image_url) {
+        user.image_url = updateProfileDto.image_url;
+    }
+
+    await this.userRepository.save(user);
+    return user;
+}
 
 }
 

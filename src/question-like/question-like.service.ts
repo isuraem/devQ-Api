@@ -6,6 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 import { QuestionLike } from './entities/question-like.entity';
 import { User } from 'src/users/entities/user.entity';
+import { PrivateActivity } from 'src/private-activity/entities/private-activity.entity';
 
 @Injectable()
 export class QuestionLikeService {
@@ -17,7 +18,7 @@ export class QuestionLikeService {
 
   async create(userId: number, questionId: number): Promise<any> {
     const user = await this.entityManager.findOne(User, { where: { id: userId } });
-    const question = await this.entityManager.findOne(Question, { where: { id: questionId } });
+    const question = await this.entityManager.findOne(Question, { where: { id: questionId }, relations: ['user'] });
 
     if (!user || !question) {
       throw new NotFoundException('User or Question not found');
@@ -27,7 +28,18 @@ export class QuestionLikeService {
       question: question
     });
 
-    return this.entityManager.save(like);
+    const savedLike = await this.entityManager.save(like);
+
+    const privateActivity = this.entityManager.create(PrivateActivity, {
+      user: question.user,
+      activityType: '1',
+      performedBy: user,
+      question,
+    });
+
+    await this.entityManager.save(PrivateActivity, privateActivity);
+
+    return savedLike;
   }
 
   async unlikeQuestion(userId: number, questionId: number): Promise<void> {

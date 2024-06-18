@@ -111,5 +111,16 @@ export class QuestionController {
       throw new HttpException(error.message, HttpStatus.NOT_FOUND);
     }
   }
+
+  @Get('one-user/:userId')
+  async findOneByUserId(@Param('userId') userId: string): Promise<{ success: boolean, data?: any[], error?: string }> {
+    try {
+      const questions = await this.questionService.findOneByUserId(+userId);
+      return { success: true, data: questions };
+    } catch (error) {
+      console.error(`Error finding questions for user with id ${userId}:`, error);
+      throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+    }
+  }
 }
 

@@ -8,6 +8,7 @@ import { FindUserByEmailDto } from './dto/find-user-by-email.dto';
 import { AuthorizationGuard } from 'src/authorization/authorization.guard';
 import { PermissionsGuard } from 'src/authorization/permissions/permissions.guard';
 import { Request } from 'express';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Controller('user')
 export class UsersController {
@@ -47,10 +48,13 @@ export class UsersController {
     }
   }
 
-  @Patch(':id')
-  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto): Promise<{ success: boolean, data?: User, error?: string }> {
+  @Patch('update/:userId')
+  @UsePipes(ValidationPipe)
+  @UseGuards(AuthorizationGuard, PermissionsGuard)
+  @SetMetadata('permissions', ['manage:admin'])
+  async update(@Param('userId') userId: string, @Body() updateUserDto: UpdateUserDto): Promise<{ success: boolean, data?: User, error?: string }> {
     try {
-      const updatedUser = await this.usersService.update(+id, updateUserDto);
+      const updatedUser = await this.usersService.update(+userId, updateUserDto);
       return { success: true, data: updatedUser };
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
@@ -83,6 +87,19 @@ export class UsersController {
     try {
       const user = await this.usersService.createNewUser(createNewUserDto);
       return { success: true, data: user };
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @Post('update/:userId')
+  @UsePipes(ValidationPipe)
+  @UseGuards(AuthorizationGuard, PermissionsGuard)
+  @SetMetadata('permissions', ['manage:recruiter'])
+  async updateProfile(@Param('userId') userId: string, @Body() updateProfileDto: UpdateProfileDto): Promise<{ success: boolean, data?: User, error?: string }> {
+    try {
+      const updatedUser = await this.usersService.updateUserProfile(+userId, updateProfileDto);
+      return { success: true, data: updatedUser };
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }

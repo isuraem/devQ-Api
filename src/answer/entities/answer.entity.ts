@@ -1,6 +1,7 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn, ManyToOne, JoinColumn, CreateDateColumn, ManyToMany, JoinTable } from "typeorm";
 import { Question } from "src/question/entities/question.entity";
 import { User } from "src/users/entities/user.entity";
+import { PrivateActivity } from "src/private-activity/entities/private-activity.entity";
 
 @Entity()
 export class Answer {
@@ -25,7 +26,10 @@ export class Answer {
     })
     user: User;
 
-    constructor(answer: Partial<Answer>){
+    @OneToMany(() => PrivateActivity, privateActivity => privateActivity.answer)
+    privateActivities: PrivateActivity[];
+
+    constructor(answer: Partial<Answer>) {
         Object.assign(this, answer)
-    }  
+    }
 }

@@ -7,6 +7,7 @@ import { EntityManager, In, Repository } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { Company } from 'src/company/entities/company.entity';
 import { Tag } from 'src/tag/entities/tag.entity';
+import { PublicActivity } from 'src/public-activity/entities/public-activity.entity';
 
 @Injectable()
 export class QuestionService {
@@ -17,7 +18,7 @@ export class QuestionService {
   ) { }
 
   async create(createQuestionDto: CreateQuestionDto): Promise<Question> {
-    const user = await this.entityManager.findOne(User, { where: { id: createQuestionDto.user_id } });
+    const user = await this.entityManager.findOne(User, { where: { id: createQuestionDto.user_id }, relations: ['company'] });
     if (!user) {
       throw new NotFoundException(`User with ID ${createQuestionDto.user_id} not found`);
     }
@@ -32,7 +33,24 @@ export class QuestionService {
       tags,
     });
 
-    return this.questionRepository.save(question);
+    const savedQuestion = await this.questionRepository.save(question);
+    console.log("user data",user)
+    const company = await this.entityManager.findOne(Company, { where: { id: user.company.id } }); // Adjust as needed
+    if (!company) {
+      throw new NotFoundException(`Company with ID ${user.company.id} not found`);
+    }
+
+    const publicActivity = this.entityManager.create(PublicActivity, {
+      company,
+      notificationText: `New question added: ${savedQuestion.title}`,
+      user,
+      question: savedQuestion,
+      activityType: '0', // or whatever string represents type '0'
+    });
+
+    await this.entityManager.save(publicActivity);
+
+    return savedQuestion;
   }
 
   private async getOrCreateTag(name: string): Promise<Tag> {
@@ -110,5 +128,21 @@ export class QuestionService {
 
     return this.findAllByCompanyId(companyId);
   }
+
+
+  async findOneByUserId(userId: number): Promise<Question[]> {
+    const user = await this.entityManager.findOne(User, { where: { id: userId }, relations: ['company'] });
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+  
+    const questions = await this.questionRepository.find({
+      where: { user: { id: userId } },
+      relations: ['user', 'tags', 'answers', 'likes', 'likes.user'],
+    });
+  
+    return questions;
+  }
+
 
 }

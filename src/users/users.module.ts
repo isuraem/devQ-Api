@@ -7,8 +7,10 @@ import { Company } from 'src/company/entities/company.entity';
 import { Question } from 'src/question/entities/question.entity';
 import { APP_PIPE } from '@nestjs/core';
 import { Answer } from 'src/answer/entities/answer.entity';
+import { PrivateActivity } from 'src/private-activity/entities/private-activity.entity';
+import { PublicActivity } from 'src/public-activity/entities/public-activity.entity';
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Company, Question, Answer])],
+  imports: [TypeOrmModule.forFeature([User, Company, Question, Answer, PrivateActivity, PublicActivity])],
   controllers: [UsersController],
   providers: [UsersService],
 })

@@ -37,7 +37,8 @@ export class CompanyController {
     }
   }
 
-  @UseGuards(AuthorizationGuard)
+  @UseGuards(AuthorizationGuard, PermissionsGuard)
+  @SetMetadata('permissions', ['manage:admin'])
   @Get(':id')
   async findOne(
     @Param('id') id: string,
