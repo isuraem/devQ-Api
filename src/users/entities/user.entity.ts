@@ -22,6 +22,9 @@ export class User {
 
     @Column()
     position: string;
+
+    @Column({ default: true })
+    activeStatus: boolean;
     
     @ManyToOne(() => Company, (company) => company.users)
     @JoinColumn({

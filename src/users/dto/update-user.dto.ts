@@ -1,4 +1,11 @@
+import { IsString, IsInt, IsOptional } from 'class-validator';
 
 export class UpdateUserDto {
-    role: number
+  @IsOptional()
+  @IsInt()
+  role?: number;
+
+  @IsOptional()
+  @IsString()
+  position?: string;
 }

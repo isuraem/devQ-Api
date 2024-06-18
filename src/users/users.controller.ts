@@ -47,10 +47,13 @@ export class UsersController {
     }
   }
 
-  @Patch(':id')
-  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto): Promise<{ success: boolean, data?: User, error?: string }> {
+  @Patch('update/:userId')
+  @UsePipes(ValidationPipe)
+  @UseGuards(AuthorizationGuard, PermissionsGuard)
+  @SetMetadata('permissions', ['manage:admin'])
+  async update(@Param('userId') userId: string, @Body() updateUserDto: UpdateUserDto): Promise<{ success: boolean, data?: User, error?: string }> {
     try {
-      const updatedUser = await this.usersService.update(+id, updateUserDto);
+      const updatedUser = await this.usersService.update(+userId, updateUserDto);
       return { success: true, data: updatedUser };
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);

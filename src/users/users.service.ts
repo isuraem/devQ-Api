@@ -31,7 +31,10 @@ export class UsersService {
       throw new NotFoundException(`Company with ID ${createUserDto.company_id} not found`);
     }
 
-    const existingUser = await this.userRepository.findOneBy({ email: createUserDto.email });
+    const existingUser = await this.userRepository.findOne({
+      where: { email: createUserDto.email, activeStatus: true }
+    });
+
     if (existingUser) {
       throw new ConflictException('User with this email already exists');
     }
@@ -70,6 +73,8 @@ export class UsersService {
 
     const user = await this.findOne(id);
     user.role = updateUserDto.role;
+    user.position = updateUserDto.position;
+    
     return this.userRepository.save(user);
 
   }
@@ -85,7 +90,7 @@ export class UsersService {
 
   async findByEmail(email: string): Promise<User> {
     const user = await this.userRepository.findOne({
-      where: { email },
+      where: { email, activeStatus: true },
       relations: ['company'],
     });
 
