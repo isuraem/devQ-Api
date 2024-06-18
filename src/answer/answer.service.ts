@@ -70,9 +70,29 @@ export class AnswerService {
   }
 
   async remove(id: number): Promise<void> {
+
+    const answer = await this.answerRepository.findOne({
+      where: { id: id },
+      relations: ['privateActivities']
+    });
+
+    // Check if the answer exists
+    if (!answer) {
+      throw new NotFoundException(`Answer with ID ${id} not found`);
+    }
+
+    // Delete related PrivateActivity records
+    if (answer.privateActivities && answer.privateActivities.length > 0) {
+      for (const activity of answer.privateActivities) {
+        await this.entityManager.delete(PrivateActivity, { id: activity.id });
+      }
+    }
+
+
+    // Now delete the answer
     const result = await this.answerRepository.delete(id);
     if (result.affected === 0) {
-      throw new NotFoundException(`Answer with ID ${id} not found`);
+      throw new NotFoundException(`Answer with ID ${id} could not be deleted`);
     }
   }
 }
