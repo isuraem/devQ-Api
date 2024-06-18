@@ -25,6 +25,9 @@ export class User {
 
     @Column({ default: true })
     activeStatus: boolean;
+
+    @Column({ default: null })
+    image_url: string | null;
     
     @ManyToOne(() => Company, (company) => company.users)
     @JoinColumn({

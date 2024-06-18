@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, HttpException, HttpStatus } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { CreateNewUserDto } from './dto/create-new-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -8,6 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Company } from 'src/company/entities/company.entity';
 import { ConfigService } from '@nestjs/config';
 import { PublicActivity } from 'src/public-activity/entities/public-activity.entity';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 const Mailjet = require('node-mailjet');
 @Injectable()
 export class UsersService {
@@ -246,6 +247,23 @@ export class UsersService {
       return savedUser;
 
   }
+
+  async updateUserProfile(userId: number, updateProfileDto: UpdateProfileDto): Promise<User> {
+    const user = await this.userRepository.findOne({where: { id: userId }});
+    if (!user) {
+        throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    console.log("data", updateProfileDto.name, updateProfileDto.image_url )
+    if (updateProfileDto.name) {
+        user.name = updateProfileDto.name;
+    }
+    if (updateProfileDto.image_url) {
+        user.image_url = updateProfileDto.image_url;
+    }
+
+    await this.userRepository.save(user);
+    return user;
+}
 
 }
 
