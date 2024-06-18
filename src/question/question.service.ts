@@ -129,4 +129,20 @@ export class QuestionService {
     return this.findAllByCompanyId(companyId);
   }
 
+
+  async findOneByUserId(userId: number): Promise<Question[]> {
+    const user = await this.entityManager.findOne(User, { where: { id: userId }, relations: ['company'] });
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+  
+    const questions = await this.questionRepository.find({
+      where: { user: { id: userId } },
+      relations: ['user', 'tags', 'answers', 'likes', 'likes.user'],
+    });
+  
+    return questions;
+  }
+
+
 }
