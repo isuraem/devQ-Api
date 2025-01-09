@@ -38,4 +38,5 @@ jobs:
         echo "MJ_APIKEY_PUBLIC=${{ secrets.MJ_APIKEY_PUBLIC }}" >> .env
         echo "MJ_APIKEY_PRIVATE=${{ secrets.MJ_APIKEY_PRIVATE }}" >> .env
         echo "LOGIN_URL=${{ secrets.LOGIN_URL }}" >> .env
+    - run: pm2 restart nestjs-dev
 
